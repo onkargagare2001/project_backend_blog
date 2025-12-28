@@ -1,4 +1,2 @@
-# A backend project 
-- [github https link](git add .
-git commit -m "Initial commit"
-)
+# project_backend_blog
+Development of video blog Application.
