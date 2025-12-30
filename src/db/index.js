@@ -1,10 +1,12 @@
 import mongoose from "mongoose";
-import {DB_name} from '../constants.js';
+// import {DB_name} from '../constants.js';
+
+console.log(process.env.MONGODB_URI);
 
 const connectDB= async()=>{
     // console.log("DB code running");
     try {
-        const connectionInstance = await mongoose.connect('mongodb+srv://onkargagare17:Snowrunner@1821@cluster0.zs3kg5b.mongodb.net/Videotube');
+        const connectionInstance = await mongoose.connect(process.env.MONGODB_URI);
      console.log(`DB connected !! ${connectionInstance.connection.host}`);
 
     } catch (error) {
