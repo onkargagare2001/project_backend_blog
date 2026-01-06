@@ -20,7 +20,7 @@ const connectDB= async()=>{
 
 
 connectDB().then(()=>{
-    console.log("sucess");
+    console.log("sucess message");
 }).catch(()=>{
     console.log('failed');
 });
