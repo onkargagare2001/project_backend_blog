@@ -7,7 +7,7 @@ const videoSchema=new Schema({
     unique:true
   },
   owner:{
-    ref:mongoose.schema.Types.ObjectId,
+    type:mongoose.schema.Types.ObjectId,
     ref:'User'
   }
 
