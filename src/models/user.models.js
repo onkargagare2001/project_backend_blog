@@ -21,6 +21,13 @@ const userSchema=new Schema({
     password:{
         type:String,
         required:[true,"It is required"]
+    },
+    watchHistory:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Video'
     }
+    ]
 
 },{timestamps:true});
+
+export const User = mongoose.model('User',userSchema);
