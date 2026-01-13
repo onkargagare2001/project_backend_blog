@@ -5,7 +5,8 @@ const userSchema=new Schema({
         type:String,
         required:true,
         unique:true,
-        trim:true
+        trim:true,
+        index:true
     },
     email:{
         type:String,
@@ -17,6 +18,14 @@ const userSchema=new Schema({
         type:String,
         required:true,
         
+    },
+    avatar:{
+        type:String,
+        required:true,
+    },
+    coverImage:{
+        type:String,
+        // required:true,
     },
     password:{
         type:String,
