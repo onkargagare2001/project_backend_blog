@@ -9,4 +9,8 @@ const app = express()
 //     credentials: true
 // }))
 
+import router from "./routes/user.router.js";
+
+app.use('/api/v1',router);
+
 export {app};
