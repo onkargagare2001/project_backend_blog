@@ -23,6 +23,8 @@ const registerUser = asyncHandler(async (req, res) => {
   //const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
   let coverImageLocalPath;
+
+  //try to log every possible thing here so we can understand incoming data ;
   if (
     req.files &&
     Array.isArray(req.files.coverImage) &&
