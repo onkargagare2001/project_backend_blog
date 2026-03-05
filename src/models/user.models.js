@@ -44,9 +44,23 @@ const userSchema = new Schema(
 );
 
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
+  // if (!this.isModified("password")) return next();
+  // this.password = await bcrypt.hash(this.password, 10);
+  // next();
+
+  try {
+    // If the password hasn't been modified, skip this middleware
+    if (!this.isModified("password")) return next();
+
+    // Hash the password asynchronously
+    this.password = await bcrypt.hash(this.password, 10);
+
+    // Move to the next middleware or save operation
+    next();
+  } catch (error) {
+    // If any error happens, pass the error to the next middleware
+    next(error);
+  }
 });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
