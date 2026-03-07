@@ -8,6 +8,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 const registerUser = asyncHandler(async (req, res) => {
   const { fullname, email, username, password } = req.body;
   //console.log("email: ", email);
+  console.log("req body: ", req.body);
 
   if (
     [fullname, email, username, password].some((field) => field?.trim() === "")
@@ -18,15 +19,17 @@ const registerUser = asyncHandler(async (req, res) => {
   const existedUser = await User.findOne({
     $or: [{ username }, { email }],
   });
+  console.log("existed user: ", existedUser);
 
   if (existedUser) {
     throw new ApiError(409, "User with email or username already exists");
   }
-  //console.log(req.files);
+  console.log("req.files printed here", req.files);
 
   const avatarLocalPath = req.files?.avatar[0]?.path;
   //const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
+  console.log("avatar local path ", avatarLocalPath);
   let coverImageLocalPath;
 
   //try to log every possible thing here so we can understand incoming data ;
@@ -70,5 +73,7 @@ const registerUser = asyncHandler(async (req, res) => {
     .status(201)
     .json(new ApiResponse(200, createdUser, "User registered Successfully"));
 });
+
+// const loginUser=
 
 export default registerUser;
