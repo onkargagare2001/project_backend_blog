@@ -104,8 +104,9 @@ const loginUser = asyncHandler(async (req, res) => {
   send cookies with refresh and accessToken and finally send userdata , refreshToken and accessToken to user
   */
   const { username, email, password } = req.body;
+  console.log(email);
 
-  if (!username && !email) {
+  if (!(username || email)) {
     throw new ApiError(400, "username or email is required");
   }
 
@@ -117,7 +118,7 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(404, "user not found ,try to signup first");
   }
 
-  const isPasswordCorrect = user.isPasswordCorrect(password);
+  const isPasswordCorrect = await user.isPasswordCorrect(password);
 
   if (!isPasswordCorrect) {
     throw new ApiError(400, "password in not valid");
@@ -127,7 +128,9 @@ const loginUser = asyncHandler(async (req, res) => {
     user._id
   );
 
-  const logedinUser = User.findById(user._id).select("-password -refreshToken");
+  const logedinUser = await User.findById(user._id).select(
+    "-password -refreshToken"
+  );
 
   return res
     .status(200)
@@ -159,7 +162,9 @@ const logoutUser = asyncHandler(async (req, res) => {
       .clearCookie("accessToken", options)
       .clearCookie("refreshToken", options)
       .json(new ApiResponse(200, {}, "User logged out"));
-  } catch (error) {}
+  } catch (error) {
+    throw new ApiError(400, "invalid refresh token or accessToken");
+  }
 });
 
-export default { registerUser, loginUser, logoutUser };
+export { registerUser, loginUser, logoutUser };
