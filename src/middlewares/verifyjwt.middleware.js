@@ -3,7 +3,7 @@ import { User } from "../models/user.models";
 import { asyncHandler } from "../utils/asyncHandler";
 import { ApiError } from "../utils/ApiError";
 
-const verifyjwt = asyncHandler(async (req, res) => {
+const verifyjwt = asyncHandler(async (req, res, next) => {
   try {
     const token =
       req.cookies?.accessToken ||
@@ -18,3 +18,5 @@ const verifyjwt = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid refresh or access token");
   }
 });
+
+export { verifyjwt };
