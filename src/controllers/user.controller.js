@@ -118,6 +118,8 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(404, "user not found ,try to signup first");
   }
 
+  console.log(user);
+
   const isPasswordCorrect = await user.isPasswordCorrect(password);
 
   if (!isPasswordCorrect) {
@@ -128,6 +130,8 @@ const loginUser = asyncHandler(async (req, res) => {
     user._id
   );
 
+  console.log(accessToken);
+
   const logedinUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
@@ -136,13 +140,12 @@ const loginUser = asyncHandler(async (req, res) => {
     .status(200)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
-    .json(
-      new ApiResponse(
-        200,
-        { logedinUser, refreshToken, accessToken },
-        "User logged in Successfully"
-      )
-    );
+    .json({
+      logedinUser,
+      refreshToken,
+      accessToken,
+      message: "User logged in Successfully",
+    });
 });
 
 const logoutUser = asyncHandler(async (req, res) => {

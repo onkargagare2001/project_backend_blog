@@ -1,24 +1,32 @@
-import jwt from "jsonwebtoken";
 import { User } from "../models/user.models.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
+import jwt from "jsonwebtoken";
 
-const verifyjwt = asyncHandler(async (req, res, next) => {
-  try {
-    const token =
-      req.cookies?.accessToken ||
-      req.header("Authorization")?.replace("Bearer ", "");
+export const verifyjwt = asyncHandler(async (req, _, next) => {
+  const token =
+    req.cookies?.accessToken ||
+    req.header("Authorization")?.replace("Bearer ", "");
 
-    const decodeToken = jwt.verify(token, process.env.ACCESS_TOKEN);
+  console.log(token);
 
-    const user = await User.findById(decodeToken?._id).select(
-      "-password -refreshToken"
-    );
-    req.user = user;
-    next();
-  } catch (error) {
-    throw new ApiError(400, "Invalid refresh or access token");
+  if (!token) {
+    throw new ApiError(401, "Invalid access request");
   }
-});
 
-export { verifyjwt };
+  const decodeToken = jwt.verify(token, process.env.ACCESS_TOKEN);
+
+  const user = await User.findById(decodeToken?._id).select(
+    "-password -refreshToken"
+  );
+
+  if (!user) {
+    throw new ApiError(401, "Invalid access Token");
+  }
+
+  req.user = user;
+  next();
+  // } catch (error) {
+  //   throw new ApiError(400, error.message || "Invalid refresh or access token");
+  // }
+});
