@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-const subscriptionSchema = Schema(
+const subscriptionSchema = new Schema(
   {
     channel: {
       type: mongoose.Schema.Types.ObjectId,
