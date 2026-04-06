@@ -264,7 +264,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
     throw new ApiError(400, "please enter valid details");
   }
 
-  await User.aggregate([
+  const channel = await User.aggregate([
     {
       $match: username.toLowerCase(),
     },
@@ -314,7 +314,19 @@ const getUserProfile = asyncHandler(async (req, res) => {
       },
     },
   ]);
+
+  if(!channel?.length){
+    throw new ApiError(400,"Channel does not exist");
+  }
+
+  return res.status(200).json(new ApiResponse(200,channel[0],"Channel fetched Successfully"));
+
 });
+
+
+const getUserWatchHistory=asyncHandler(async(req,res)=>{
+  await 
+})
 
 export {
   registerUser,
@@ -322,4 +334,5 @@ export {
   logoutUser,
   refreshAccessToken,
   changeCurrentPassword,
+  getUserProfile
 };
