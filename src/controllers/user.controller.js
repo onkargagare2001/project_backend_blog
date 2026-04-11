@@ -4,7 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { decode } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 const generateAccessAndRefreshToken = async (userId) => {
   try {
@@ -131,7 +131,7 @@ const loginUser = asyncHandler(async (req, res) => {
     user._id
   );
 
-  console.log(accessToken);
+  // console.log(accessToken);
 
   const logedinUser = await User.findById(user._id).select(
     "-password -refreshToken"
@@ -175,7 +175,11 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =
-    req.cookies.refreshToken || req.body.refreshToken;
+    req.cookies?.refreshToken || req.body.refreshToken;
+
+  if (!incomingRefreshToken) {
+    throw new ApiError(400, "Unauthorized request");
+  }
 
   const decodeToken = jwt.verify(
     incomingRefreshToken,
@@ -192,7 +196,9 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     throw new ApiError(400, "refresh token expired");
   }
 
-  if (incomingRefreshToken !== user.refreshToken) {
+  console.log("user saved >>", user.refreshToken);
+
+  if (incomingRefreshToken !== user?.refreshToken) {
     throw new ApiError(400, "refresh token expired");
   }
 
@@ -203,7 +209,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
+    .cookie("refreshToken", newRefreshToken, options)
     .json(
       new ApiResponse(
         200,
@@ -249,7 +255,7 @@ const updateAvatar = asyncHandler(async (req, res) => {
   const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
-      $et: {
+      $set: {
         avatar: avatar.url,
       },
     },
@@ -290,13 +296,18 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 const getUserProfile = asyncHandler(async (req, res) => {
   const { username } = req.params;
 
+  console.log("usenme >>", username);
+  console.log(username.length);
+
   if (!username?.trim()) {
     throw new ApiError(400, "please enter valid details");
   }
 
   const channel = await User.aggregate([
     {
-      $match: username.toLowerCase(),
+      $match: {
+        username: username.toLowerCase(),
+      },
     },
     {
       $lookup: {
@@ -414,5 +425,8 @@ export {
   logoutUser,
   refreshAccessToken,
   changeCurrentPassword,
+  updateAvatar,
+  updateAccountDetails,
   getUserProfile,
+  getUserWatchHistory,
 };
