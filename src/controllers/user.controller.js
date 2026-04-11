@@ -331,7 +331,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
           $size: "$subscribers",
         },
         subscribedToCount: {
-          $size: "$subscribedto",
+          $size: "$subscribedTo",
         },
         isSubscribed: {
           $cond: {

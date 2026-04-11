@@ -39,7 +39,7 @@ router
 
 router.route("/updateAccountDetails").patch(verifyjwt, updateAccountDetails);
 
-router.route("/c:username").get(verifyjwt, getUserProfile);
+router.route("/c/:username").get(verifyjwt, getUserProfile);
 router.route("/getUserWatchHistory").get(verifyjwt, getUserWatchHistory);
 
 export default router;
