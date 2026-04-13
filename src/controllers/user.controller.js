@@ -2,9 +2,14 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.models.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import {
+  uploadOnCloudinary,
+  deleteFromCloudinary,
+} from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+
+let oldAvatarPublicID;
 
 const generateAccessAndRefreshToken = async (userId) => {
   try {
@@ -75,7 +80,10 @@ const registerUser = asyncHandler(async (req, res) => {
 
   const user = await User.create({
     fullname,
-    avatar: avatar.url,
+    avatar: {
+      url: avatar.url,
+      public_id: avatar.public_id,
+    },
     coverImage: coverImage?.url || "",
     email,
     password,
@@ -85,6 +93,8 @@ const registerUser = asyncHandler(async (req, res) => {
   const createdUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
+
+  console.log(createdUser);
 
   if (!createdUser) {
     throw new ApiError(500, "Something went wrong while registering the user");
@@ -246,17 +256,33 @@ const updateAvatar = asyncHandler(async (req, res) => {
   }
 
   // we have to delete old image here before uploading new one which can optimize app
+  // if (oldAvatarPublicID) {
+  //   const resOldimage = await deleteFromCloudinary(oldAvatarPublicID);
+  //   console.log(resOldimage.result);
+  // }
+  const oldImage = await User.findById(req.user._id);
+  if (oldImage.avatar.public_id) {
+    const res = await deleteFromCloudinary(oldImage.avatar.public_id);
+    if (res?.result === "ok") {
+      console.log("img deleted");
+    }
+  }
   const avatar = await uploadOnCloudinary(avatarLocalPath);
+  // console.log(avatar);
 
   if (!avatar.url) {
     throw new ApiError(500, "Erro occurer while uploadOnCloudinary");
   }
+  // oldAvatarPublicID = avatar.public_id;
 
   const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
       $set: {
-        avatar: avatar.url,
+        avatar: {
+          url: avatar.url,
+          public_id: avatar.public_id,
+        },
       },
     },
     {
