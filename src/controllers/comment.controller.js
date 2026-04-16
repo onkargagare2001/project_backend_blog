@@ -22,16 +22,60 @@ const getVideoComments = asyncHandler(async (req, res) => {
 const addComment = asyncHandler(async (req, res) => {
   try {
     const { content } = req.body;
+    console.log("content>>>>>,", content);
     const { videoId } = req.params;
     const newComment = await Comment.create({
       content,
-      video: mongoose.Schema.Types.ObjectId(videoId),
-      owner: mongoose.Schema.Types.ObjectId(req.user._id),
+      video: videoId,
+      owner: req.user._id,
     });
-    res.status(200).json(new ApiResponse(200, newComment, "New comment added"));
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, newComment, "New comment added"));
   } catch (error) {
     throw new ApiError(500, error.message);
   }
 });
 
-export { getVideoComments, addComment };
+const deleteComment = asyncHandler(async (req, res) => {
+  try {
+    const { commentId } = req.params;
+    const deletedComment = await Comment.findByIdAndDelete(commentId);
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, deletedComment, "comment deleted."));
+  } catch (error) {
+    throw new ApiError(500, error.message);
+  }
+});
+
+const updateComment = asyncHandler(async (req, res) => {
+  try {
+    const { commentId } = req.params;
+    const { text } = req.body;
+
+    if (!text || text.trim() === "") {
+      throw new ApiError(400, "Please put appropriate comment");
+    }
+
+    const updatedComment = await Comment.findByIdAndUpdate(
+      commentId,
+      {
+        content: text,
+      },
+      {
+        new: true,
+      }
+    );
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, updatedComment, "comment deleted."));
+  } catch (error) {
+    throw new ApiError(500, error.message);
+  }
+});
+
+export { getVideoComments, addComment, deleteComment, updateComment };

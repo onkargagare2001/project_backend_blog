@@ -8,5 +8,6 @@ const router = Router();
 router.use(verifyjwt);
 
 router.route("/:videoId").get(getVideoComments).post(addComment);
+// router.route("/:videoId").post(addComment);
 
 export default router;
