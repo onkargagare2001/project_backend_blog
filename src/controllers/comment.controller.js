@@ -72,7 +72,7 @@ const updateComment = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, updatedComment, "comment deleted."));
+      .json(new ApiResponse(200, updatedComment, "comment updated."));
   } catch (error) {
     throw new ApiError(500, error.message);
   }
