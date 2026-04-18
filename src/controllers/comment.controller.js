@@ -51,6 +51,7 @@ const deleteComment = asyncHandler(async (req, res) => {
   }
 });
 
+// here is one thin we have to do that edit old comment id user want to then we have ti do this at frontend
 const updateComment = asyncHandler(async (req, res) => {
   try {
     const { commentId } = req.params;
