@@ -48,13 +48,48 @@ const publishAVideo = asyncHandler(async (req, res) => {
 });
 
 const getVideoById = asyncHandler(async (req, res) => {
-  const { videoId } = req.params;
   //TODO: get video by id
+
+  try {
+    const { videoId } = req.params;
+    const video = await Video.findById(videoId);
+
+    if (!video) {
+      throw new ApiError(400, "video not found");
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, video, "Video fetched sucessfully"));
+  } catch (error) {
+    new ApiError(400, "something went wrong");
+  }
 });
 
 const updateVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
   //TODO: update video details like title, description, thumbnail
+  const { title, description } = req.body;
+  const thumbnailPath = req.file?.path;
+
+  const thumbnailUrl = await uploadOnCloudinary(thumbnailPath);
+
+  const updatedVideo = await Video.findByIdAndUpdate(
+    videoId,
+    {
+      title: title,
+      description: description,
+      thumbnail: thumbnailUrl.url,
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, updatedVideo, "Video detaisl Updated"));
 });
 
 const deleteVideo = asyncHandler(async (req, res) => {
