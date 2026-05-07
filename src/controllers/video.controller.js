@@ -9,6 +9,39 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
   //TODO: get all videos based on query, sort, pagination
+  const filter = {
+    isPublished: true,
+  };
+
+  if (query) {
+    filter.$or = [
+      { title: { $regex: query, $options: "i" } },
+      { description: { $regex: query, $options: "i" } },
+    ];
+  }
+
+  const sortOptions = {
+    [sortBy || "createdAt"]: sortType == "desc" ? -1 : 1,
+  };
+  const skip = (Number(page) - 1) * Number(limit);
+  const videos = await Video.find(filter)
+    .sort(sortOptions)
+    .skip(skip)
+    .limit(Number(limit));
+
+  // if (videos.length === 0) {
+  //   return res.status(200).json(new ApiResponse(200, videos, "No video found"));
+  // }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        videos,
+        videos.length ? "Videos fetched successfully" : "No videos found"
+      )
+    );
 });
 
 const publishAVideo = asyncHandler(async (req, res) => {
