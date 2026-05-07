@@ -6,16 +6,22 @@ const playlistSchema = new Schema(
     name: {
       type: String,
       required: true,
+      trim: true,
+      minlength: 3,
     },
+    description: { type: String, required: true, trim: true },
     videos: [
       {
         type: Schema.Types.ObjectId,
         ref: "Video",
+        unique: true,
       },
     ],
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
+      index: true,
     },
   },
   {

@@ -6,12 +6,46 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 const createPlaylist = asyncHandler(async (req, res) => {
   const { name, description } = req.body;
+  const userId = req.user?._id;
+
+  if (!name.trim() || !description.trim()) {
+    throw new ApiError(400, "All fields are required");
+  }
+
+  const playlist = await Playlist.create({
+    name,
+    description,
+    createdBy: userId,
+  });
+
+  return res
+    .status(201)
+    .json(new ApiResponse(200, playlist, "Playlist created successfully"));
 
   //TODO: create playlist
 });
 
 const getUserPlaylists = asyncHandler(async (req, res) => {
   const { userId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    throw new ApiError(400, "Invalid user id");
+  }
+
+  const playlists = await Playlist.find({ createdBy: userId });
+  // if(playlists.length == 0){
+
+  // }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        playlists,
+        playlists.length === 0 ? "no playlist found" : "Playlists fecthdwd "
+      )
+    );
   //TODO: get user playlists
 });
 
