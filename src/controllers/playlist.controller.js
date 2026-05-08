@@ -56,6 +56,26 @@ const getPlaylistById = asyncHandler(async (req, res) => {
 
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
   const { playlistId, videoId } = req.params;
+
+  const updatedPlaylist = await Playlist.findByIdAndUpdate(
+    videoId,
+    {
+      $addToSet: {
+        videos: videoId,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+
+  if (!updatedPlaylist) {
+    throw new ApiError(400, "Playlist not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, updatedPlaylist, "Vide added in playlist"));
 });
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
