@@ -52,6 +52,15 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 const getPlaylistById = asyncHandler(async (req, res) => {
   const { playlistId } = req.params;
   //TODO: get playlist by id
+  const playlist = await Playlist.findById(playlistId);
+
+  if (!playlist) {
+    throw new ApiError(400, "Playlist not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, playlist, "playlist fetched successfully"));
 });
 
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
@@ -80,18 +89,60 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
   const { playlistId, videoId } = req.params;
+
   // TODO: remove video from playlist
+
+  const updatedPlaylist = await Playlist.findOneAndUpdate(
+    { _id: playlistId, videos: videoId },
+    {
+      $pull: { videos: videoId },
+    },
+    { new: true }
+  );
+
+  if (!updatedPlaylist) {
+    throw new ApiError(400, "video not found to be removed");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, updatedPlaylist, "Video removed successfully"));
 });
 
 const deletePlaylist = asyncHandler(async (req, res) => {
   const { playlistId } = req.params;
   // TODO: delete playlist
+  const deletedPlaylist = await Playlist.findByIdAndDelete(playlistId);
+  if (!deletedPlaylist) {
+    throw new ApiError(400, "playlist not found to be removed");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, deletedPlaylist, "playlist removed successfully")
+    );
 });
 
 const updatePlaylist = asyncHandler(async (req, res) => {
   const { playlistId } = req.params;
   const { name, description } = req.body;
   //TODO: update playlist
+
+  const updatedPlaylist = await Playlist.findByIdAndUpdate(
+    playlistId,
+    { name, description },
+    { new: true }
+  );
+
+  if (!updatedPlaylist) {
+    throw new ApiError(400, "playlist not found to be updated");
+  }
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, deletedPlaylist, "playlist removed successfully")
+    );
 });
 
 export {
