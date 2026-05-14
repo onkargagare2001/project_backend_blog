@@ -44,24 +44,38 @@ const getChannelStats = asyncHandler(async (req, res) => {
   const likesCountResult = await Like.aggregate([
     {
       $match: {
-        _id: req.user?._id,
+        video: {
+          $ne: null,
+        },
       },
     },
     {
+      $lookup: {
+        from: "videos",
+        localField: "video",
+        foreignField: "_id",
+        as: "videoResult",
+      },
+    },
+    {
+      $unwind: "$videoResult",
+    },
+    {
       $match: {
-        video: { $ne: null },
+        "videoResult.owner": req.user?._id,
       },
     },
     {
       $count: "likesCount",
     },
   ]);
-  (likesCount = likesCountResult[0]?.likesCount || 0),
-    res
-      .status(200)
-      .json(
-        new ApiResponse(200, { likesCount, subscribers }, "All stats fectched")
-      );
+
+  const likesCount = likesCountResult[0]?.likesCount || 0;
+  res
+    .status(200)
+    .json(
+      new ApiResponse(200, { likesCount, subscribers }, "All stats fectched")
+    );
 });
 
 const getChannelVideos = asyncHandler(async (req, res) => {
